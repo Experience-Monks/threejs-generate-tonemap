@@ -1,7 +1,7 @@
 {
   "name": "threejs-generate-tonemap",
   "version": "1.0.0",
-  "description": "Generate a tonemap texture from an 8-bit palette (256 points initially plotted on the tonemap)",
+  "description": "Generate a tonemap texture from an 8-bit palette using the GPU (256 points initially plotted on the tonemap)",
   "main": "index.js",
   "license": "MIT",
   "author": {
@@ -10,9 +10,12 @@
     "url": "https://github.com/eternallite"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "beefy": "^2.1.5",
+    "three": "^0.73.0"
+  },
   "scripts": {
-    "test": "node test.js"
+    "test": "beefy test.js --live --open"
   },
   "keywords": [],
   "repository": {

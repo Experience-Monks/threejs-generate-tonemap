@@ -2,7 +2,7 @@
 
 [![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
-Generate a tonemap texture from an 8-bit palette (256 points initially plotted on the tonemap)
+Generate a tonemap texture from an 8-bit palette using the GPU (256 points initially plotted on the tonemap)
 
 ## Usage
 
