@@ -1,0 +1,26 @@
+{
+  "name": "threejs-generate-tonemap",
+  "version": "1.0.0",
+  "description": "Generate a tonemap texture from an 8-bit palette (256 points initially plotted on the tonemap)",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "David Tran",
+    "email": "davidt@jam3.com",
+    "url": "https://github.com/eternallite"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Jam3/threejs-generate-tonemap.git"
+  },
+  "homepage": "https://github.com/Jam3/threejs-generate-tonemap",
+  "bugs": {
+    "url": "https://github.com/Jam3/threejs-generate-tonemap/issues"
+  }
+}

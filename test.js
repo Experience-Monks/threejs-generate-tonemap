@@ -1,0 +1,2 @@
+var TonemapGenerator = require('./index');
+
