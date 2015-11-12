@@ -1,24 +1,9 @@
-function TonemapGenerator(renderer) {
+function PassThrough(renderer, map, renderToScreen) {
    
 	this.renderer = renderer;
 
-	var textureWidth = textureHeight = 512;
-	var size = textureWidth * textureHeight;
-	var dataColor = new Uint8Array( size * 3 );
-	for (var i = 0; i < size; i++) {
-		dataColor[i*3]     = 0;
-		dataColor[i*3 + 1] = 255;
-		dataColor[i*3 + 2] = 0;
-	}
-
-	// fill 0..255 points with indices
-	for (var i = 0; i < 256; i++) {
-		dataColor[i*3]     = i;
-		dataColor[i*3 + 1] = 0;
-		dataColor[i*3 + 2] = 0;
-	}
-	var map = new THREE.DataTexture(dataColor, textureWidth, textureHeight, THREE.RGBFormat);
-	map.needsUpdate = true;
+	var textureWidth = (map instanceof THREE.WebGLRenderTarget) ? map.width : map.image.width;
+	var textureHeight = (map instanceof THREE.WebGLRenderTarget) ? map.height : map.image.height;
 
 	var renderTarget = new THREE.WebGLRenderTarget(textureWidth, textureHeight);
     renderTarget.flipY = false;
@@ -27,9 +12,11 @@ function TonemapGenerator(renderer) {
     renderTarget.magFilter = THREE.NearestFilter;
 
     this.renderTarget = renderTarget;
+    this.map = map;
+    this.renderToScreen = renderToScreen;
 
     var scene = new THREE.Scene();
-    var camera = new THREE.OrthographicCamera( -1, 1, -1, 1, -1, 1 );
+    var camera = new THREE.OrthographicCamera( -1, 1, 1, -1, -1, 1 );
 
     this.scene = scene;
     this.camera = camera;
@@ -39,8 +26,6 @@ function TonemapGenerator(renderer) {
 		uniforms: {
 			pixelSize: { type: 'v2', value: new THREE.Vector2(1.0 / textureWidth, 1.0 / textureHeight) },
 			data: {type: 't', value: map}
-			//texture1: {type: 't', value: this.renderTarget1},
-			//texture2: {type: 't', value: this.renderTarget2}
 		},
 		vertexShader: 
 		[
@@ -56,8 +41,11 @@ function TonemapGenerator(renderer) {
 		'uniform vec2 pixelSize; ',
 
 		'varying vec2 vUv; ',
-		'  void main() {',
-		'    gl_FragColor = texture2D(data, vUv);',
+		'  void main() {',	
+
+		map instanceof THREE.WebGLRenderTarget ? 
+			'    gl_FragColor = texture2D(data, vUv);' : 
+			'    gl_FragColor = texture2D(data, vec2(vUv.x, 1.0 - vUv.y));',
 		'  }'
 		].join('\n')
 	});
@@ -69,15 +57,17 @@ function TonemapGenerator(renderer) {
 	scene.add(quad);	
 }
 
-TonemapGenerator.prototype.update = function() {
+PassThrough.prototype.update = function() {
 
-	//this.renderer.render(this.scene, this.camera, this.renderTarget);
-	this.renderer.render(this.scene, this.camera, this.renderTarget);
+	this.renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : this.renderTarget);
 };
 
-TonemapGenerator.prototype.dispose = function() {
+PassThrough.prototype.dispose = function() {
 
-	// this.renderTarget.dispose();
-	// delete this.renderTarget;
+	this.renderTarget.dispose();
+	delete this.renderTarget;
+
+	this.map.dispose();
+	delete this.map;
 };
-module.exports = TonemapGenerator;
+module.exports = PassThrough;
