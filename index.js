@@ -42,7 +42,32 @@ function TonemapGenerator(renderer, initialRenderTarget) {
 
 		'varying vec2 vUv; ',
 		'  void main() {',
-		'    gl_FragColor = texture2D(data, vUv);',
+		'    vec4 vacant = vec4(0.0, 1.0, 0.0, 1.0); ',
+		'    if (texture2D(data, vUv) == vacant) {',
+		'      vec4 sample = texture2D(data, vUv + vec2(0.0, -pixelSize.y)); ',
+		'      if (sample != vacant) {',
+		'        gl_FragColor = sample;',
+		'      } else {',
+		'        sample = texture2D(data, vUv + vec2(0.0, pixelSize.y));',
+		'        if (sample != vacant) {',
+		'          gl_FragColor = sample;',
+		'        } else {',
+		'          sample = texture2D(data, vUv + vec2(-pixelSize.x, 0.0));',
+		'          if (sample != vacant) {',
+		'            gl_FragColor = sample;',
+		'          } else {',
+		'            sample = texture2D(data, vUv + vec2(pixelSize.x, 0.0));',
+		'            if (sample != vacant) {',
+		'              gl_FragColor = sample;',
+		'            } else {',
+		'              gl_FragColor = texture2D(data, vUv);',	
+		'            }',
+		'          }',
+		'        }',
+		'      }',
+		'    } else {',
+		'      gl_FragColor = texture2D(data, vUv);',
+		'    }',
 		'  }'
 		].join('\n')
 	});
@@ -56,18 +81,16 @@ function TonemapGenerator(renderer, initialRenderTarget) {
 
 TonemapGenerator.prototype.update = function() {
 
-	var iterations = 32;
+	var iterations = 80;
+	var renderTargets = this.renderTargets;
 
 	for (var i = 0; i < iterations; i++) {
-		var first = this.renderTargets.shift();
-		this.renderTargets.push(first);
+		renderTargets.push(renderTargets.shift());
 
-		var currentRenderTarget = this.renderTargets[0];
-
-		this.material.uniforms.data.value = first;
-		this.renderer.render(this.scene, this.camera, currentRenderTarget);
-		this.finalRenderTarget = currentRenderTarget;
+		this.material.uniforms.data.value = renderTargets[1];
+		this.renderer.render(this.scene, this.camera, renderTargets[0]);
 	}
+	this.finalRenderTarget = renderTargets[0];
 };
 
 TonemapGenerator.prototype.dispose = function() {

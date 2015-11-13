@@ -18,10 +18,12 @@ for (var i = 0; i < size; i++) {
 }
 
 // fill 0..255 points with indices
-for (var i = 0; i < 256; i++) {
-	dataColor[i*3]     = i;
-	dataColor[i*3 + 1] = 0;
-	dataColor[i*3 + 2] = 0;
+for (var i = 0, c = 0; i < 256 && c < dataColor.length * 3; i++) {
+	c += ~~(Math.random() * 0x790);
+	var cc = ~~(Math.random() * size);
+	dataColor[cc*3]     = i;
+	dataColor[cc*3 + 1] = 0;
+	dataColor[cc*3 + 2] = 0;
 }
 var map = new THREE.DataTexture(dataColor, textureWidth, textureHeight, THREE.RGBFormat);
 map.needsUpdate = true;
@@ -31,7 +33,7 @@ var passThrough = new PassThrough(renderer, map);
 passThrough.update();
 
 var tonemapGenerator = new TonemapGenerator(renderer, passThrough.renderTarget);
- tonemapGenerator.update();
+tonemapGenerator.update();
 
 var finalPassThrough = new PassThrough(renderer, tonemapGenerator.finalRenderTarget, true);
 finalPassThrough.update();
