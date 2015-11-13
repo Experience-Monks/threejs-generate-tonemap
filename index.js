@@ -81,7 +81,7 @@ function TonemapGenerator(renderer, initialRenderTarget) {
 
 TonemapGenerator.prototype.update = function() {
 
-	var iterations = 80;
+	var iterations = 90;
 	var renderTargets = this.renderTargets;
 
 	for (var i = 0; i < iterations; i++) {
