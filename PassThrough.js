@@ -1,4 +1,4 @@
-function PassThrough(renderer, map, renderToScreen) {
+function PassThrough(renderer, map, renderToScreen, flipY) {
    
 	this.renderer = renderer;
 
@@ -43,9 +43,12 @@ function PassThrough(renderer, map, renderToScreen) {
 		'varying vec2 vUv; ',
 		'  void main() {',	
 
-		map instanceof THREE.WebGLRenderTarget ? 
+		map instanceof THREE.WebGLRenderTarget ? 			
 			'    gl_FragColor = texture2D(data, vUv);' : 
 			'    gl_FragColor = texture2D(data, vec2(vUv.x, 1.0 - vUv.y));',
+
+		// only for flipping render targets
+		flipY ? 'gl_FragColor = texture2D(data, vec2(vUv.x, 1.0 - vUv.y));' : '',
 		'  }'
 		].join('\n')
 	});

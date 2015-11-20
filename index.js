@@ -48,7 +48,15 @@ function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
 	var tonemapGenerator = new TonemapGenerator(renderer, originalTonemap, passThrough.renderTarget);
 	tonemapGenerator.update();
 
-	this.finalRenderTarget = tonemapGenerator.finalRenderTarget;
+	var renderTarget = tonemapGenerator.finalRenderTarget;
+
+	var finalPassThrough = new PassThrough(renderer, tonemapGenerator.finalRenderTarget, false, true);
+	finalPassThrough.update();
+
+	// clean up finalPassThrough
+	
+	this.finalRenderTarget = renderTarget;
+	this.finalRenderTargetFlipped = finalPassThrough.renderTarget;
 
 	originalTonemap.dispose();
 
