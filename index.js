@@ -53,23 +53,25 @@ function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
 	var finalPassThrough = new PassThrough(renderer, tonemapGenerator.finalRenderTarget, false, true);
 	finalPassThrough.update();
 
-	// clean up finalPassThrough
-	
+
 	this.finalRenderTarget = renderTarget;
 	this.finalRenderTargetFlipped = finalPassThrough.renderTarget;
 
 	originalTonemap.dispose();
 
 	this.passThrough = passThrough;
+	this.finalPassThrough = finalPassThrough;
 	this.tonemapGenerator = tonemapGenerator;
 }
 
 TonemapGeneratorHelper.prototype.dispose = function() {
 	this.passThrough.dispose();
 	this.tonemapGenerator.dispose();
+	this.finalPassThrough.dispose();
 
 	delete this.passThrough;
 	delete this.tonemapGenerator;
-}
+	delete this.finalPassThrough;
+};
 
 module.exports = TonemapGeneratorHelper;
