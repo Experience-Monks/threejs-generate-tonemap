@@ -1,103 +1,59 @@
-function TonemapGenerator(renderer, initialRenderTarget) {
+var PassThrough = require('./PassThrough');
+var TonemapGenerator = require('./TonemapGenerator');
+var palette = require('./palette');
+
+function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
    
-	this.renderer = renderer;
+	var textureWidth = textureHeight = originalTonemap.image.height;
 
-	var textureWidth = initialRenderTarget.width;
-	var textureHeight = initialRenderTarget.height;
+	// Generate palette
 	var size = textureWidth * textureHeight;
+	var dataColor = new Uint8Array( size * 3 );
+	for (var i = 0; i < size; i++) {
+		dataColor[i*3]     = 0;
+		dataColor[i*3 + 1] = 255;
+		dataColor[i*3 + 2] = 0;
+	}
 
-	var renderTarget2 = new THREE.WebGLRenderTarget(textureWidth, textureHeight);
-    renderTarget2.flipY = false;
-    renderTarget2.generateMipMaps = false;
-    renderTarget2.minFilter = THREE.NearestFilter;
-    renderTarget2.magFilter = THREE.NearestFilter;
+	function mod(a, b) {
+		return a - b * Math.floor(a / b);
+	} 
 
-    var renderTargets = [initialRenderTarget, renderTarget2];
-    this.renderTargets = renderTargets;
+	// Fill data texture with 256 points of palette
+	for (var i = 0, l = palette.length; i < l; i++) {
+		var r = palette[i][2] / 255.0;
+		var g = palette[i][3] / 255.0;
+		var b = palette[i][4] / 255.0;
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.OrthographicCamera( -1, 1, 1, -1, -1, 1 );
+		var blueColor = Math.floor(b * 64.0);
+		var y = Math.floor(blueColor / 8.0) / 8.0;
+		var x = mod(blueColor, 8.0) / 8.0;
 
-    this.scene = scene;
-    this.camera = camera;
+		var texu = x + r * (1.0 / 8.0 - 1.0 / 512.0);
+		var texv = y + g * (1.0 / 8.0 - 1.0 / 512.0);
 
-	this.material = new THREE.ShaderMaterial({
-    	side: THREE.DoubleSide,
-		uniforms: {
-			pixelSize: { type: 'v2', value: new THREE.Vector2(1.0 / textureWidth, 1.0 / textureHeight) },
-			data: {type: 't', value: initialRenderTarget}
-		},
-		vertexShader: 
-		[
-		'varying vec2 vUv;',
-		'void main() {',
-		'	vUv = uv;',
-		'	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); ',
-		'}'
-		].join('\n'),
-		fragmentShader: 
-		[
-		'uniform sampler2D data;',
-		'uniform vec2 pixelSize; ',
+		var index = ~~(texv * 512.0) * 512 + ~~(texu * 512.0);
+		
+		dataColor[index * 3] = i;
+		dataColor[index * 3 + 1] = i;
+		dataColor[index * 3 + 2] = i;
+	}
 
-		'varying vec2 vUv; ',
-		'  void main() {',
-		'    vec4 vacant = vec4(0.0, 1.0, 0.0, 1.0); ',
-		'    if (texture2D(data, vUv) == vacant) {',
-		'      vec4 sample = texture2D(data, vUv + vec2(0.0, -pixelSize.y)); ',
-		'      if (sample != vacant) {',
-		'        gl_FragColor = sample;',
-		'      } else {',
-		'        sample = texture2D(data, vUv + vec2(0.0, pixelSize.y));',
-		'        if (sample != vacant) {',
-		'          gl_FragColor = sample;',
-		'        } else {',
-		'          sample = texture2D(data, vUv + vec2(-pixelSize.x, 0.0));',
-		'          if (sample != vacant) {',
-		'            gl_FragColor = sample;',
-		'          } else {',
-		'            sample = texture2D(data, vUv + vec2(pixelSize.x, 0.0));',
-		'            if (sample != vacant) {',
-		'              gl_FragColor = sample;',
-		'            } else {',
-		'              gl_FragColor = texture2D(data, vUv);',	
-		'            }',
-		'          }',
-		'        }',
-		'      }',
-		'    } else {',
-		'      gl_FragColor = texture2D(data, vUv);',
-		'    }',
-		'  }'
-		].join('\n')
-	});
+	var map = new THREE.DataTexture(dataColor, textureWidth, textureHeight, THREE.RGBFormat);
+	map.needsUpdate = true;
+	
+	// Pass in map of 256 initial colours
+	var passThrough = new PassThrough(renderer, map);
+	passThrough.update();
 
-	var quad = new THREE.Mesh(
-		new THREE.PlaneBufferGeometry( 2, 2 ),
-		this.material
-	);
-	scene.add(quad);	
+	var tonemapGenerator = new TonemapGenerator(renderer, originalTonemap, passThrough.renderTarget);
+	tonemapGenerator.update();
+
+	passThrough.dispose();
+	tonemapGenerator.dispose();
+	originalTonemap.dispose();
 }
 
-TonemapGenerator.prototype.update = function() {
+TonemapGeneratorHelper.prototype.
 
-	var iterations = 90;
-	var renderTargets = this.renderTargets;
-
-	for (var i = 0; i < iterations; i++) {
-		renderTargets.push(renderTargets.shift());
-
-		this.material.uniforms.data.value = renderTargets[1];
-		this.renderer.render(this.scene, this.camera, renderTargets[0]);
-	}
-	this.finalRenderTarget = renderTargets[0];
-};
-
-TonemapGenerator.prototype.dispose = function() {
-
-	for (var i = 0, l = this.renderTargets.length; i < l; i++) {
-		this.renderTargets[i].dispose();
-		delete this.renderTargets[i];
-	}
-};
 module.exports = TonemapGenerator;
