@@ -71,7 +71,7 @@ function TonemapGenerator(renderer, originalTonemap, initialRenderTarget) {
         '		texPos1.y = 1.0-texPos1.y;',
         '	#endif',
                     
-        '	mediump vec4 newColor1 = texture2D(lookupTable1, texPos1);',
+        '	lowp vec4 newColor1 = texture2D(lookupTable1, texPos1);',
         '	return newColor1;',
         '}',
 
