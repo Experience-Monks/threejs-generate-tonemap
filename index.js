@@ -1,6 +1,5 @@
 var PassThrough = require('./PassThrough');
 var TonemapGenerator = require('./TonemapGenerator');
-var palette = require('./palette');
 
 function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
    
@@ -49,11 +48,20 @@ function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
 	var tonemapGenerator = new TonemapGenerator(renderer, originalTonemap, passThrough.renderTarget);
 	tonemapGenerator.update();
 
-	passThrough.dispose();
-	tonemapGenerator.dispose();
+	this.finalRenderTarget = tonemapGenerator.finalRenderTarget;
+
 	originalTonemap.dispose();
+
+	this.passThrough = passThrough;
+	this.tonemapGenerator = tonemapGenerator;
 }
 
-TonemapGeneratorHelper.prototype.
+TonemapGeneratorHelper.prototype.dispose = function() {
+	this.passThrough.dispose();
+	this.tonemapGenerator.dispose();
 
-module.exports = TonemapGenerator;
+	delete this.passThrough;
+	delete this.tonemapGenerator;
+}
+
+module.exports = TonemapGeneratorHelper;
