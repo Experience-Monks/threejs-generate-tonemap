@@ -72,5 +72,14 @@ PassThrough.prototype.dispose = function() {
 
 	this.map.dispose();
 	delete this.map;
+
+	if (this.material.uniforms.map) {
+		this.material.uniforms.map.value.dispose();
+		delete this.material.uniforms.map.value;
+	}
+
+	delete this.scene;
+	delete this.camera;
+	delete this.material;
 };
 module.exports = PassThrough;

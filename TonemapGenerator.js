@@ -137,10 +137,9 @@ function TonemapGenerator(renderer, originalTonemap, initialRenderTarget) {
 
 TonemapGenerator.prototype.update = function() {
 
-	var iterations = 62;
 	var renderTargets = this.renderTargets;
 
-	for (var i = 0; i < iterations; i++) {
+	for (var i = 0, iterations = 62; i < iterations; i++) {
 		renderTargets.push(renderTargets.shift());
 
 		this.material.uniforms.data.value = renderTargets[1];
@@ -155,5 +154,19 @@ TonemapGenerator.prototype.dispose = function() {
 		this.renderTargets[i].dispose();
 		delete this.renderTargets[i];
 	}
+
+	if (this.material.uniforms.data) {
+		this.material.uniforms.data.value.dispose();
+		delete this.material.uniforms.data.value;		
+	}
+
+	if (this.material.uniforms.originalTonemap) {
+		this.material.uniforms.originalTonemap.value.dispose();
+		delete this.material.uniforms.originalTonemap.value;		
+	}
+
+	delete this.scene;
+	delete this.camera;
+	delete this.material;
 };
 module.exports = TonemapGenerator;
