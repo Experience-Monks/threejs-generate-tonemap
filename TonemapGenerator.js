@@ -132,6 +132,7 @@ function TonemapGenerator(renderer, originalTonemap, initialRenderTarget) {
 		new THREE.PlaneBufferGeometry( 2, 2 ),
 		this.material
 	);
+	this.quad = quad;
 	scene.add(quad);	
 }
 
@@ -150,6 +151,8 @@ TonemapGenerator.prototype.update = function() {
 
 TonemapGenerator.prototype.dispose = function() {
 
+	delete this.finalRenderTarget;
+
 	for (var i = 0, l = this.renderTargets.length; i < l; i++) {
 		this.renderTargets[i].dispose();
 		delete this.renderTargets[i];
@@ -165,8 +168,16 @@ TonemapGenerator.prototype.dispose = function() {
 		delete this.material.uniforms.originalTonemap.value;		
 	}
 
+	this.scene.remove(this.quad);
+	this.quad.geometry.dispose();
+	delete this.quad.material;
+	delete this.quad.geometry;
+	delete this.quad;
+
 	delete this.scene;
 	delete this.camera;
+
+	this.material.dispose();
 	delete this.material;
 };
 module.exports = TonemapGenerator;

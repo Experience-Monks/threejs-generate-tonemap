@@ -57,6 +57,7 @@ function PassThrough(renderer, map, renderToScreen, flipY) {
 		new THREE.PlaneBufferGeometry( 2, 2 ),
 		this.material
 	);
+	this.quad = quad;
 	scene.add(quad);	
 }
 
@@ -78,8 +79,16 @@ PassThrough.prototype.dispose = function() {
 		delete this.material.uniforms.map.value;
 	}
 
+	this.scene.remove(this.quad);
+	this.quad.geometry.dispose();
+	delete this.quad.material;
+	delete this.quad.geometry;
+	delete this.quad;
+	
 	delete this.scene;
 	delete this.camera;
+
+	this.material.dispose();
 	delete this.material;
 };
 module.exports = PassThrough;
