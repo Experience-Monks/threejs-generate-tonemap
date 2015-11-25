@@ -1,6 +1,6 @@
 {
   "name": "threejs-generate-tonemap",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Generate a tonemap texture from an 8-bit palette using the GPU (256 points initially plotted on the tonemap)",
   "main": "index.js",
   "license": "MIT",
