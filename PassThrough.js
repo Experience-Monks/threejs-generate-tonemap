@@ -74,21 +74,21 @@ PassThrough.prototype.dispose = function() {
 	this.map.dispose();
 	delete this.map;
 
-	if (this.material.uniforms.map) {
-		this.material.uniforms.map.value.dispose();
-		delete this.material.uniforms.map.value;
+	if (this.material.uniforms.data) {
+		this.material.uniforms.data.value.dispose();
+		delete this.material.uniforms.data.value;
 	}
 
 	this.scene.remove(this.quad);
 	this.quad.geometry.dispose();
-	delete this.quad.material;
+	this.quad.material.dispose();
 	delete this.quad.geometry;
+	delete this.quad.material;
 	delete this.quad;
 	
 	delete this.scene;
 	delete this.camera;
 
-	this.material.dispose();
 	delete this.material;
 };
 module.exports = PassThrough;
