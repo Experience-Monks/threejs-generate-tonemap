@@ -140,7 +140,7 @@ TonemapGenerator.prototype.update = function() {
 
 	var renderTargets = this.renderTargets;
 
-	for (var i = 0, iterations = 62; i < iterations; i++) {
+	for (var i = 0, iterations = 64; i < iterations; i++) {
 		renderTargets.push(renderTargets.shift());
 
 		this.material.uniforms.data.value = renderTargets[1];
@@ -163,10 +163,10 @@ TonemapGenerator.prototype.dispose = function() {
 		delete this.material.uniforms.data.value;		
 	}
 
-	if (this.material.uniforms.originalTonemap) {
-		this.material.uniforms.originalTonemap.value.dispose();
-		delete this.material.uniforms.originalTonemap.value;		
-	}
+	// if (this.material.uniforms.originalTonemap) {
+	// 	this.material.uniforms.originalTonemap.value.dispose();
+	// 	delete this.material.uniforms.originalTonemap.value;		
+	// }
 
 	this.scene.remove(this.quad);
 	this.quad.geometry.dispose();
