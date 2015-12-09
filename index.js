@@ -38,6 +38,26 @@ function TonemapGeneratorHelper(renderer, originalTonemap, palette) {
 		dataColor[index * 3 + 2] = i;
 	}
 
+	// Generate 1000 test points
+	// for (var i = 0, l = 1000; i < l; i++) {
+	// 	var r = Math.random();
+	// 	var g = Math.random();
+	// 	var b = Math.random();
+
+	// 	var blueColor = Math.floor(b * 64.0);
+	// 	var y = Math.floor(blueColor / 8.0) / 8.0;
+	// 	var x = mod(blueColor, 8.0) / 8.0;
+
+	// 	var texu = x + r * (1.0 / 8.0 - 1.0 / 512.0);
+	// 	var texv = y + g * (1.0 / 8.0 - 1.0 / 512.0);
+
+	// 	var index = ~~(texv * 512.0) * 512 + ~~(texu * 512.0);
+		
+	// 	dataColor[index * 3] = r * 255;
+	// 	dataColor[index * 3 + 1] = g * 255;
+	// 	dataColor[index * 3 + 2] = b * 255;
+	// }
+
 	var map = new THREE.DataTexture(dataColor, textureWidth, textureHeight, THREE.RGBFormat);
 	map.needsUpdate = true;
 	
